@@ -1,0 +1,17 @@
+{
+  "name": "devjock-ai",
+  "owner": {
+    "name": "DevJock",
+    "email": "support@devjock.ai"
+  },
+  "metadata": {
+    "description": "The DevJock plugin for Claude."
+  },
+  "plugins": [
+    {
+      "name": "devjock",
+      "source": "./",
+      "description": "Connect Claude to your DevJock workspace through a secure DevJock sign-in."
+    }
+  ]
+}
