@@ -43,4 +43,4 @@ The Chat tab does not load plugins, but it can use DevJock through a **connector
 - **The browser says "can't connect" partway through sign-in.** You took a little too long on the approval screens. Try again and move a bit faster.
 - **"Initialize DevJock" does nothing in the Chat tab.** The Chat tab doesn't load plugins. Use the connector steps above, or switch to Cowork.
 
-Questions: support@devjock.ai
+Questions: support@tradeloopcorp.com
