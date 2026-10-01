@@ -2,6 +2,8 @@
 
 Connect Claude to your DevJock workspace — your tasks, memories, assistants and skills — through a secure DevJock sign-in. Nothing to install on your computer: no terminal, no Node.js, no Python.
 
+When you say "Initialize DevJock", Claude loads the DevJock system prompts for your role (workspace user, workspace admin or platform admin — DevJock decides) and the list of DevJock cloud skills and agents. In the Chat and Cowork tabs it fetches them one by one through the connector. In Claude Code, and in the Code tab, it uses a small bundled Python script that fetches them in one go if `python3` is present, and falls back to the connector if not.
+
 ## What you need
 
 - A DevJock account (the login you already use at devjock.ai).

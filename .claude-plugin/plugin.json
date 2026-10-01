@@ -1,7 +1,7 @@
 {
   "name": "devjock",
   "displayName": "DevJock",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Connect Claude to your DevJock workspace: tasks, memories, assistants and skills, through a secure DevJock sign-in. Works in Claude Desktop (Cowork and Code) and in Claude Code. Nothing to install on your computer.",
   "author": {
     "name": "DevJock",
@@ -11,8 +11,17 @@
   "homepage": "https://devjock.ai",
   "repository": "https://github.com/Devjock-ai/devjock-claude-plugin",
   "license": "SEE LICENSE IN LICENSE",
-  "keywords": ["devjock", "tasks", "project-management", "agents", "mcp"],
-  "skills": ["./skills/initialize-devjock"],
+  "keywords": [
+    "devjock",
+    "tasks",
+    "project-management",
+    "agents",
+    "mcp"
+  ],
+  "skills": [
+    "./skills/initialize-devjock",
+    "./skills/reauthenticate"
+  ],
   "mcpServers": {
     "devjock": {
       "type": "http",
