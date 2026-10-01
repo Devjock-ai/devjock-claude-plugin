@@ -9,10 +9,10 @@ Connect Claude to your DevJock workspace — your tasks, memories, assistants an
 
 ## Install in Claude Desktop
 
-Claude Desktop has three tabs. **Cowork** and **Code** load plugins; **Chat** does not (see "Using the Chat tab" below).
+Claude Desktop has three tabs. **Cowork** and **Code** load the whole plugin, including its DevJock connector. **Chat** loads the plugin's skill but not its connector, so in Chat you also add DevJock as a connector (see "Using the Chat tab" below).
 
 1. Open Claude Desktop and switch to the **Cowork** or **Code** tab.
-2. Open the plugins menu (**+** → **Plugins**) and choose **Add marketplace**.
+2. Open **Customize → Plugins → Add → Add marketplace**.
 3. Enter `Devjock-ai/devjock-claude-plugin` and add it.
 4. Install the **DevJock** plugin from that marketplace.
 5. The first time Claude uses DevJock, a browser window opens asking you to sign in to DevJock. Sign in and approve. Move through the screens promptly — if you take too long, Claude stops waiting and you will need to try again.
@@ -29,7 +29,7 @@ Restart Claude Code, then type `/mcp`, choose **devjock**, and pick **Authentica
 
 ## Using the Chat tab
 
-The Chat tab does not load plugins, but it can use DevJock through a **connector**:
+The Chat tab loads the plugin's "Initialize DevJock" skill, but not the plugin's own connector. Add DevJock as a **connector** once and the skill works there too:
 
 1. In Claude Desktop or at claude.ai, open **Customize → Connectors**.
 2. Click **+**, then **Add custom connector**.
@@ -41,6 +41,6 @@ The Chat tab does not load plugins, but it can use DevJock through a **connector
 
 - **Claude says DevJock isn't connected.** Sign in again: in Claude Code type `/mcp` → **devjock** → **Authenticate**; in Claude Desktop reopen the DevJock connector and sign in.
 - **The browser says "can't connect" partway through sign-in.** You took a little too long on the approval screens. Try again and move a bit faster.
-- **"Initialize DevJock" does nothing in the Chat tab.** The Chat tab doesn't load plugins. Use the connector steps above, or switch to Cowork.
+- **"Initialize DevJock" says DevJock isn't connected in the Chat tab.** Chat doesn't use the plugin's connector. Add the DevJock connector (steps above), or switch to Cowork.
 
 Questions: support@tradeloopcorp.com
