@@ -55,7 +55,7 @@ Hi!
 ## Nickname (prompt 444 §2)
 - First 8 hex: <first 8 hex of this session's UUID. If no session UUID is available to you (Path B), write `none` and skip the two lines below>
 - LEET trace: <per-char decode, e.g. "0→O, 5→S, 8→B, f→F, 5→S, c→C, e→E, f→F">
-- Closest name: <name, derived per "Deriving the nickname" below>
+- Closest name: <name, derived per the a2a-protocol prompt (p444) §2.2, which is in the system prompts you just read>
 
 ## Platform Context
 - Loaded live (Path <A or B>): <N> platform prompts + <M> postscripts + <S> skills + <A> agents.
@@ -74,77 +74,6 @@ What would you like to work on?
 
 **`<claude-code-session-uuid>` = this session's UUID** (in Claude Code, the Session ID from the SessionStart context — the same UUID the nickname is derived from). When no session UUID is available (Path B), sign `DevJock | <today's date>` instead. Do NOT call `list_chat_sessions`, `chat_with_ai`, or any other lookup to find or create a chat id during init.
 
-## Deriving the nickname
-
-Take the **first 8 hex characters** of the session UUID and work through these steps in
-order. The result is a derivation with a shown audit trail, not a guess — which is why
-it is not fabrication and must not be skipped.
-
-**1. Decode.** Lowercase the input, then map each hex character:
-
-| hex | → | hex | → | hex | → | hex | → |
-|---|---|---|---|---|---|---|---|
-| `0` | O | `4` | A | `8` | B | `c` | C |
-| `1` | I *(alt: L)* | `5` | S | `9` | G *(alt: P)* | `d` | D |
-| `2` | Z | `6` | G | `a` | A | `e` | E |
-| `3` | E | `7` | T | `b` | B | `f` | F |
-
-`1` and `9` are genuinely ambiguous in leetspeak: try the primary, and if it yields no
-match try the alternate, keeping whichever ranks better in step 4. Reachable letters are
-therefore `{A,B,C,D,E,F,G,I,L,O,P,S,T,Z}` — H, J, K, M, N, Q, R, U, V, W, X and Y cannot
-appear, which is why step 2 matches a **prefix** and not a whole name.
-
-**2. Match a PREFIX, not the whole name.** Find the longest run of decoded characters —
-read left to right, skips allowed, **never reordered** — that forms the *beginning* of a
-human given name.
-
-```
-5e28ba22  ->  S E Z B B A Z Z
-              ^ ^   ^     ^
-              S·E···B···A        prefix "SEBA"  ->  Sebastian
-```
-
-Do not require every letter of the name to appear. `SEBASTIAN` has nine letters and the
-decoded string has eight; demanding a full-string match would return nothing here, and
-for almost any session.
-
-**3. Anchor at the first character.** The match must start at decoded character 1. This
-is what makes the result stable across runs and models — without it the same seed also
-yields `E·B·B` → Ebby, and two sessions would disagree about who you are.
-
-**4. Rank.** In this order:
-
-1. **Longest matched prefix wins.**
-2. Tie → the **tightest** match: the one spanning the fewest decoded characters. For
-   `7ed0beef` → `TEDOBEEF`, both `Ted` (positions 0,1,2) and `Tobias` (0,3,4) match three
-   letters, but `Ted` is contiguous and is the better reading.
-3. Still tied → the **longer** name (`Sebastian` over `Seba`).
-4. Still tied → alphabetical.
-
-**A match under 3 characters does not count.** One or two letters is a coincidence, not a
-derivation — every hex string shares a first letter with *something*. Treat anything
-shorter as no match and use the fallback below; an honest handle beats a name that
-implies a resemblance that is not there.
-
-Use **any real human given name you know** — no list ships with this skill. The rules
-above are the constraint; they decide which name wins, and the LEET trace you print is
-the audit trail proving it was derived. A fixed list would only shrink what you can
-reach: the reachable alphabet is already just 14 letters, and a short list turns ordinary
-seeds into "no match" when a perfectly good name exists (`EOGDEOEC` → `Egon`).
-
-**5. Emit** the name, keeping the LEET trace line visible above it as the audit trail.
-
-**If nothing matches**, say so in one line and use the raw hex as the handle:
-`No name match for this session; using handle {hex}.` That is a narrow, explicit
-fallback for this slot only — it is NOT the general fabrication rule in Step 3, and the
-two must not be collapsed into one.
-
-*Canonically this behaviour is [prompt 444](https://www.devjock.ai/prompts/444) §2.2
-("apply LEET decoding, and find the closest human name"). The steps above are this
-skill's precise derivation for sessions with a UUID, where the same UUID must produce
-the same name across models. p444 stays as written; this is a deliberate, documented
-elaboration of it, not a divergence.*
-
 ## Step 3 — SELF-CHECK BEFORE SENDING
 
 Audit your drafted output. If ANY of these are true, fix and re-audit:
@@ -153,7 +82,7 @@ Audit your drafted output. If ANY of these are true, fix and re-audit:
 - `## Prompt Read-Ledger` is missing, OR its row count ≠ N + M → you skipped prompts; go back and read them before emitting the template
 - Any ledger `proof-of-read` merely restates the prompt's name/title instead of quoting a header or rule from its body → you did not actually read that prompt; go read it
 - The quoted "Final line reached" is not verbatim → you did not read to the end
-- NEVER fabricate a value to fill a slot. If a slot cannot be filled honestly (a read that did not complete), say so plainly instead of inventing one — a fabricated line is a hard failure, worse than an honest "none". *(This does not cover the nickname. A name produced by "Deriving the nickname" is a derivation with its trace shown, not an invention, and that section defines its own no-match fallback. Do not merge the two rules — treating an inexact name as fabrication is what silently disabled this feature for a month.)*
+- NEVER fabricate a value to fill a slot. If a slot cannot be filled honestly (a read that did not complete), say so plainly instead of inventing one — a fabricated line is a hard failure, worse than an honest "none".
 - `## Platform Context` missing, OR its counts do not match what Step 1 actually loaded
 - Signature line's session UUID (when you have one) is NOT wrapped in `[...](...)` markdown link brackets, OR you attempted to look up a cloud chat id
 - Any `prompt <N>` / `agent <N>` / `task <id>` reference anywhere in your output lacks surrounding `[...](url)` brackets
