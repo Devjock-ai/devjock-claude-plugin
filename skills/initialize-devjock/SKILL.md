@@ -67,12 +67,12 @@ What would you like to work on?
 <Name> | chat [<session-uuid>](https://www.devjock.ai/chat/<session-uuid>)
 ```
 
-One ledger row per prompt actually read; the row count must equal N + M. If N + M is 0, replace the table with the single line `No system prompts are assigned to this account's role.` and carry on. The counts come from the file's first line (shell) or from what you loaded (no shell). In Claude Code the session UUID is the Session ID in your SessionStart context; with no UUID, sign `DevJock | <today's date>`.
+N and M are NOT your count: with a shell they are the numbers in the file's first line; without one they are what `list_prompts` returned. The ledger must have exactly N + M rows. Fewer rows means you stopped reading before the end — go back and read the rest; never lower N or M to match. If N + M is 0, replace the table with the single line `No system prompts are assigned to this account's role.` and carry on. In Claude Code the session UUID is the full Session ID in your SessionStart context, used whole in the signature; with no UUID, sign `DevJock | <today's date>`.
 
 ## 3. Check before sending
 
 - You read every prompt to its end. A proof-of-read that restates a title instead of quoting the body means you did not; go back.
-- The ledger count equals N + M, and the counts match what was actually loaded.
+- The ledger has exactly N + M rows, with N and M taken from the source, not from your own count.
 - Nothing is invented to fill a slot. An honest "could not load X" is correct; a fabricated line is a hard failure.
 
 Everything else you need — how to sign, how to link, how to behave — is in the prompts you just loaded. Follow them.
