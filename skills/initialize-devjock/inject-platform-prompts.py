@@ -218,6 +218,7 @@ def emit_registry(templates, token):
 # workspace admin/member gets: the prompts grouped in the user prompt agent (agent 190,
 # the bundle chat loads for non-admins). Client-side and for preview ONLY — the server
 # remains the authority on what a real non-admin can read.
+INIT_PROMPT_ID = 776  # dj.initialize-devjock-workflow: the report template and rules, appended last
 USER_PROMPT_AGENT_ID = 190            # /load-user-prompts  (workspace admin)
 WORKSPACE_USER_PROMPT_AGENT_ID = 477  # /load-workspace-user-prompts (workspace user)
 
@@ -277,7 +278,20 @@ def main():
 
     registry_md, n_skills, n_agents = emit_registry(templates, token)
 
-    header = (f"<!-- DevJock platform context injected live: {len(platform)} platform (type 2) "
+    # The session instructions (report template, ledger rule, self-check) live in
+    # DevJock as prompt 776, not in the plugin, so they are appended here and read
+    # last. If the fetch fails the file still has the prompts; the skill says so.
+    init_md = ""
+    try:
+        init = _get_json(f"{API}/prompts/get?prompt_id={INIT_PROMPT_ID}", token)
+        init_body = (init.get("data") or init).get("prompt") if isinstance(init.get("data") or init, dict) else None
+        if init_body:
+            init_md = ("\n## Your session instructions — follow these now "
+                       f"(dj.initialize-devjock-workflow, [prompt {INIT_PROMPT_ID}](https://www.devjock.ai/prompts/{INIT_PROMPT_ID}))\n\n" + init_body + "\n")
+    except Exception as e:  # noqa: BLE001
+        init_md = f"\n<!-- Session instructions (prompt {INIT_PROMPT_ID}) could not be fetched: {e} -->\n"
+
+    header = (f"<!-- DevJock system prompts injected live: {len(platform)} system (type 2) "
               f"+ {len(post)} postscript (type 7) prompts + {n_skills} skills + {n_agents} agents "
               f"(agent-templates registry). Order mirrors CWO. -->")
     if preview:
@@ -297,6 +311,7 @@ def main():
         platform_md,
         emit_prompts(post, "DevJock Platform Postscripts (live-injected, type 7)"),
         registry_md,
+        init_md,
     ])
 
     # --- Why we write a file instead of printing the bodies to stdout ---
@@ -335,12 +350,9 @@ def main():
     print(f"Full platform context (~{approx_tokens:,} tokens) written to:")
     print(f"    {out_path}")
     print()
-    print("MANDATORY, before Step 3: use the Read tool to read that file IN FULL. It is")
-    print("larger than the Read tool's per-call output cap (~25k tokens), so you MUST page")
-    print(f"through it (about {est_reads} reads) until you reach its LAST line — the type-7")
-    print("postscript (prompt 692) followed by the Skill & Agent Registry. The platform")
-    print("prompts are NOT in your context window until you have actually read this file.")
-    print("This block is only a pointer; do not treat it as the context itself.")
+    print("Read that file with the Read tool to its LAST line, paging by offset (about")
+    print(f"{est_reads} reads). It ends with your session instructions; follow them. Nothing in")
+    print("it is in your context until you have read it. This block is only a pointer.")
 
 
 if __name__ == "__main__":
