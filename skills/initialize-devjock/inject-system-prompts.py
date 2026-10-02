@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Inject DevJock platform context into the initialize-devjock skill at boot — the
+Inject DevJock system prompts into the initialize-devjock skill at boot — the
 EA3 pattern applied to the plugin. Two kinds of context are injected:
 
-1. Platform PROMPTS + POSTSCRIPTS (prompts table, type_id=2 then 7) — the live
+1. System PROMPTS + POSTSCRIPTS (prompts table, type_id=2 then 7) — the live
    operating context. Order mirrors the live CWO (ChatService.php). Active only;
    category='skill' prompts skipped (legacy: skills used to be prompts); sort ASC.
 
@@ -42,7 +42,7 @@ PLATFORM_WS = -2
 # prompts each role may see; a non-admin can legitimately get none, and without
 # this notice the session would boot with no operating context and no warning.
 NO_PROMPTS_NOTICE = (
-    "DevJock returned no platform prompts for your account's role. Your session "
+    "DevJock returned no system prompts for your account's role. Your session "
     "will work, but without DevJock's operating guidance. If you expected them, "
     "ask your DevJock admin."
 )
@@ -98,7 +98,7 @@ def _first_list(data, *keys):
     return []
 
 
-# ---------- (1) platform prompts + postscripts ----------
+# ---------- (1) system prompts + postscripts ----------
 # The API only lets a PLATFORM ADMIN list prompts without naming a workspace; any
 # other caller gets 400 "workspace_id is required". Platform-scoped prompts are
 # visible to every caller whatever workspace they name, so a regular workspace
@@ -227,7 +227,7 @@ def role_preview():
     """DEVJOCK_ROLE_PREVIEW = none | workspace-user | workspace-admin | platform-admin.
 
     Mirrors what chat delivers per role (task 48-40386): platform admins get every
-    platform prompt; workspace admins get /load-user-prompts (agent 190), workspace
+    system prompt; workspace admins get /load-user-prompts (agent 190), workspace
     users get /load-workspace-user-prompts (agent 477), both plus the postscript; a
     caller with no workspace role gets none.
     """
@@ -248,12 +248,12 @@ def user_agent_prompt_ids(token, agent_id=USER_PROMPT_AGENT_ID):
 
 def main():
     if get_access_token is None:
-        print("*DevJock auth module unavailable; run /devjock:reauthenticate. Platform context NOT injected.*")
+        print("*DevJock auth module unavailable; run /devjock:reauthenticate. System prompts NOT injected.*")
         return
     try:
         token = get_access_token()
         if not token:
-            print("*DevJock token not found; run /devjock:reauthenticate to authenticate. Platform context NOT injected.*")
+            print("*DevJock token not found; run /devjock:reauthenticate to authenticate. System prompts NOT injected.*")
             return
         ws = member_workspace_id(token)
         platform = fetch_prompts(2, token, ws)
@@ -270,10 +270,10 @@ def main():
                 platform = [p for p in platform if int(p.get("id") or 0) in allowed]
                 # postscript (type 7) is loaded for every role by chat, so it stays
     except urllib.error.HTTPError as e:
-        print(f"*DevJock API error HTTP {e.code} — platform context NOT injected. Run /devjock:reauthenticate if token expired.*")
+        print(f"*DevJock API error HTTP {e.code} — system prompts NOT injected. Run /devjock:reauthenticate if token expired.*")
         return
     except Exception as e:
-        print(f"*DevJock API error: {e} — platform context NOT injected.*")
+        print(f"*DevJock API error: {e} — system prompts NOT injected.*")
         return
 
     registry_md, n_skills, n_agents = emit_registry(templates, token)
@@ -296,12 +296,12 @@ def main():
               f"(agent-templates registry). Order mirrors CWO. -->")
     if preview:
         header += (f"\n<!-- ROLE PREVIEW: {preview} — showing {len(platform) + len(post)} of "
-                   f"{full_count} platform prompts. "
+                   f"{full_count} system prompts. "
                    f"Unset DEVJOCK_ROLE_PREVIEW for the full admin context. -->")
     if not platform:
         header += f"\n<!-- {NO_PROMPTS_NOTICE} -->"
 
-    platform_md = emit_prompts(platform, "DevJock Platform Prompts — your operating context (live-injected, type 2)")
+    platform_md = emit_prompts(platform, "DevJock System Prompts — your operating context (live-injected, type 2)")
     if not platform:
         platform_md += f"\n**{NO_PROMPTS_NOTICE}**\n"
 
@@ -315,7 +315,7 @@ def main():
     ])
 
     # --- Why we write a file instead of printing the bodies to stdout ---
-    # The full platform context is ~50k tokens. When a skill's `!`command`` inlines
+    # The full system prompts is ~50k tokens. When a skill's `!`command`` inlines
     # that much stdout, the Claude Code harness SILENTLY truncates it to a ~2KB
     # preview and spills the rest to a persisted-output file. The agent then reads a
     # skill line claiming "these ARE your context" and proceeds having loaded almost
@@ -344,10 +344,10 @@ def main():
         print(f"**{NO_PROMPTS_NOTICE}**")
         print()
     print("=============================================================================")
-    print("  PLATFORM CONTEXT WAS WRITTEN TO A FILE — IT IS *NOT* INLINED IN THIS OUTPUT")
+    print("  SYSTEM PROMPTS WAS WRITTEN TO A FILE — IT IS *NOT* INLINED IN THIS OUTPUT")
     print("=============================================================================")
     print()
-    print(f"Full platform context (~{approx_tokens:,} tokens) written to:")
+    print(f"Full system prompts (~{approx_tokens:,} tokens) written to:")
     print(f"    {out_path}")
     print()
     print("Read that file with the Read tool to its LAST line, paging by offset (about")
